@@ -32,6 +32,20 @@
 
 #include "membership.h"
 
+struct groupdef *groupdef_new(
+		gid_t id)
+{
+	struct groupdef *newgroup;
+
+	newgroup = malloc(sizeof(struct groupdef));
+
+	newgroup->id   = id;
+	newgroup->name = NULL;
+	newgroup->next = NULL;
+
+	return newgroup;
+}
+
 /**
  * Append an element after the current element. Create the new
  * structure, and add it after the reference element.
@@ -47,11 +61,7 @@ struct groupdef *append_to_grouplist(
 {
 	struct groupdef *newgroup;
 
-	newgroup = malloc(sizeof(struct groupdef));
-
-	newgroup->id   = id;
-	newgroup->name = NULL;
-	newgroup->next = NULL;
+	newgroup = groupdef_new(id);
 
 	if(prev == NULL) {
 		DEBUG("Creating first group: '%d'\n", id);
