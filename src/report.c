@@ -34,6 +34,7 @@
  * Output function: print the list of group names on stdout.
  *
  * \param[in]  *grouplist  The Linked list of groupdef structures.
+ * \param[in]  *sep        The separator string.
  */
 void report_membership(
 		struct groupdef *grouplist,

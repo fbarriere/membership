@@ -78,7 +78,6 @@ void resolve_group_names(
  *
  * \TODO: Directly generate a table of groupdef structures (not sure it's better).
  * \TODO: manage the table overflow (the user is member of more than 1024 groups).
- * \TODO: Exit the member comparison as soon as the suer is found (optimization).
  *
  * \param[in]  *username  The name of the user to search in the group map.
  * \return                The table of group IDs. Group 0 not handled.
@@ -100,6 +99,7 @@ gid_t *list_group_ids(
 			if(strcmp((group->gr_mem)[i], username) == 0 && group->gr_gid != 0) {
 				DEBUG("User is member of group '%d' (%d)\n", group->gr_gid, ii);
 				idlist[ii++] = group->gr_gid;
+				break;
 			}
 		}
 	}
