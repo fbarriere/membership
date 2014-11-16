@@ -14,7 +14,6 @@
 struct groupdef {
 	char *name;
 	gid_t id;
-	struct groupdef *next;
 };
 
 #define DEBUG(...) if(debug > 0) { printf("[DEBUG] "); printf(__VA_ARGS__) ; }
