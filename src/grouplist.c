@@ -32,6 +32,13 @@
 
 #include "membership.h"
 
+/**
+ * Group description structure constructor. Given an ID, create a new
+ * groupdef structure.
+ *
+ * \param[in]  id   The ID of the new group description to create.
+ * \return          The pointer to the new groupdef structure.
+ */
 struct groupdef *groupdef_new(
 		gid_t id)
 {
@@ -41,84 +48,44 @@ struct groupdef *groupdef_new(
 
 	newgroup->id   = id;
 	newgroup->name = NULL;
-	newgroup->next = NULL;
 
 	return newgroup;
 }
 
 /**
- * Append an element after the current element. Create the new
- * structure, and add it after the reference element.
+ * Add the given group (ID+name) to the list of groups the current user
+ * is member of. If the group is already in the list (a group with the same
+ * ID is already listed), compare the name and choose the most relevant one.
  *
- * \param[in]  *prev  The reference element, add after this one.
- * \param[in]   id    The ID of the group to append.
- *
- * \return            The last group created+added (to be the new reference).
+ * \param[in]  **grouplist  The current list of groups. Used to trigger the
+ *                          building of an intial empty list, if NULL.
+ * \param[in]    id         The ID of the new group to add to the list.
+ * \param[in]    gname      The name of the group to add to the list.
+ * \return                  The head of the table of groupdef structures.
  */
-struct groupdef *append_to_grouplist(
-		struct groupdef *prev,
-		gid_t id)
+struct groupdef **add_group_to_grouplist(
+		struct groupdef **grouplist,
+		gid_t id,
+		const char *gname)
 {
-	struct groupdef *newgroup;
-
-	newgroup = groupdef_new(id);
-
-	if(prev == NULL) {
-		DEBUG("Creating first group: '%d'\n", id);
-		prev = newgroup;
-	}
-	else {
-		DEBUG("Adding group: '%d'\n", id);
-		prev->next = newgroup;
-	}
-
-	return newgroup;
-}
-
-/**
- * Create the linked list, given the array of GIDs the user is member of.
- *
- * \param[in]  *idlist   The beginning of the IDs table.
- * \return               The head of the list.
- */
-struct groupdef *create_grouplist(
-		gid_t *idlist)
-{
-	struct groupdef *grouplist=NULL, *lastgroup=NULL;
 	int i;
-	struct group *group;
 
-	for(i=0; idlist[i] != 0; i++) {
-		group = getgrgid(idlist[i]);
-		lastgroup = append_to_grouplist(lastgroup, idlist[i]);
-		if(grouplist == NULL) {
-			grouplist = lastgroup;
+	if(grouplist == NULL) {
+		DEBUG("Creating membership list\n");
+		grouplist = calloc(1024, sizeof(struct groupdef *));
+	}
+
+	for(i=0; grouplist[i] != NULL; i++) {
+		if((grouplist[i])->id == id) {
+			DEBUG("Group (id) %d is already in the list [%d)\n", id, i);
+			(grouplist[i])->name = choose_name((grouplist[i])->name, gname);
+			return grouplist;
 		}
 	}
+	DEBUG("Adding group (id) %d (name) %s to the list [%d]\n", id, gname, i);
+	grouplist[i]         = groupdef_new(id);
+	(grouplist[i])->name = choose_name((grouplist[i])->name, gname);
 
 	return grouplist;
-}
-
-/**
- * look for a group ID in the linked list and check or update
- * its name.
- *
- * \param[in]   gid    The ID of the group to look for.
- * \param[in]  *name   A proposal for the group name.
- * \param[in]  *list   The linked list of groupdef structures.
- */
-void find_group_in_grouplist(
-		gid_t gid,
-		char *name,
-		struct groupdef *list)
-{
-	struct groupdef *group;
-
-	for(group=list; group != NULL; group=group->next) {
-		if(group->id == gid) {
-			DEBUG("Validating names for group '%d'\n", gid);
-			group->name = choose_name(group->name, name);
-		}
-	}
 }
 

@@ -31,23 +31,24 @@
 #include "membership.h"
 
 /**
- * Output function: print the list of group names on stdout.
+ * Loop through the table of group membership and print them list of groups
+ * the user is member of. Seperate the group names by the given separator
+ * string.
  *
- * \param[in]  *grouplist  The Linked list of groupdef structures.
- * \param[in]  *sep        The separator string.
+ * \param[in]  **grouplist  The head of a table of groupdef structures.
+ * \param[in]   *sep        The separator string.
  */
 void report_membership(
-		struct groupdef *grouplist,
+		struct groupdef **grouplist,
 		const char *sep)
 {
-	struct groupdef *group;
+	int i;
 
-	for(group=grouplist; group != NULL; group=group->next) {
-		if(group != grouplist) {
+	for(i=0; grouplist[i]; i++) {
+		if(i != 0) {
 			printf("%s", sep);
 		}
-		printf("%s", group->name);
+		printf("%s", (grouplist[i])->name);
 	}
 	printf("\n");
 }
-

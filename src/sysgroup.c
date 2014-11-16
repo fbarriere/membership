@@ -52,44 +52,18 @@ void end_sysgroup(void)
 }
 
 /**
- * Loop through the group names in the group NIS map, search for
- * the ID in the list of groups the user is member of.
+ * List the groups the given user is member of. Given a user name, loop
+ * through the groups and build a list of group definitions (ID+name).
  *
- * \param[in]  *grouplist  The linked list of groups the user is member of.
+ * \param[in]  username  The name of the user to search for in the group members.
+ * \return               The head of a table of groupdef structures.
  */
-void resolve_group_names(
-		struct groupdef *grouplist)
-{
-	struct group *group;
-
-	setgrent();
-	while( (group=getgrent()) ) {
-		DEBUG("Looking for membership of '%d', '%s'\n", group->gr_gid, group->gr_name);
-		find_group_in_grouplist(group->gr_gid, group->gr_name, grouplist);
-	}
-}
-
-/**
- * Read the group NIS map and save each group ID the user is member of (compare
- * the username with each member of the group in turn).
- * Generates a table of group IDs limited to 1024 entries.
- * The group 0 is not handled as it is used to stop the list. But as this is the
- * root group, we can consider we don't want to list it...
- *
- * \TODO: Directly generate a table of groupdef structures (not sure it's better).
- * \TODO: manage the table overflow (the user is member of more than 1024 groups).
- *
- * \param[in]  *username  The name of the user to search in the group map.
- * \return                The table of group IDs. Group 0 not handled.
- */
-gid_t *list_group_ids(
+struct groupdef **list_groups(
 		const char *username)
 {
-	gid_t *idlist;
+	struct groupdef **grouplist=NULL;
 	struct group *group;
-	int i, ii=0;
-
-	idlist = calloc(1024, sizeof(gid_t));
+	int i;
 
 	DEBUG("Looking for groups, user '%s'\n", username);
 
@@ -97,13 +71,13 @@ gid_t *list_group_ids(
 	while( (group=getgrent()) ) {
 		for(i=0; (group->gr_mem)[i] != NULL; i++) {
 			if(strcmp((group->gr_mem)[i], username) == 0 && group->gr_gid != 0) {
-				DEBUG("User is member of group '%d' (%d)\n", group->gr_gid, ii);
-				idlist[ii++] = group->gr_gid;
+				DEBUG("User is member of group '%d'\n", group->gr_gid);
+				grouplist = add_group_to_grouplist(grouplist, group->gr_gid, group->gr_name);
 				break;
 			}
 		}
 	}
 
-	return idlist;
-}
+	return grouplist;
 
+}

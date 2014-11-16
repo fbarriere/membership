@@ -79,6 +79,7 @@ int main(int argc, char **argv)
 	char *myname=NULL;
 	gid_t *membership;
 	struct groupdef *groups;
+	struct groupdef **usergroups;
 
 	for(i=1; i < argc; i++) {
 		if(strcmp(argv[i], "--help") == 0) {
@@ -111,10 +112,8 @@ int main(int argc, char **argv)
 
 	start_sysgroup();
 
-	membership = list_group_ids(myname);
-	groups     = create_grouplist(membership);
-	resolve_group_names(groups);
-	report_membership(groups, ", ");
+	usergroups = list_groups(myname);
+	report_membership(usergroups, ", ");
 
 	end_sysgroup();
 

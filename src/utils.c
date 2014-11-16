@@ -67,7 +67,7 @@ void fatal_error(char *format, ...)
  */
 char *choose_name(
 		char *currentname,
-		char *comparedname)
+		const char *comparedname)
 {
 	size_t currentlength, comparedlength;
 
