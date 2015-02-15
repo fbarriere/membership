@@ -6,6 +6,7 @@ AC_INIT([membership], [1.0.0], [vieil.anarchiste@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/membership.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_TESTDIR([tests])
 
 # Checks for programs.
 AC_PROG_CC
@@ -23,4 +24,4 @@ AC_TYPE_SIZE_T
 #AC_FUNC_MALLOC
 AC_CHECK_FUNCS([endgrent strdup])
 
-AC_OUTPUT([Makefile src/Makefile])
+AC_OUTPUT([Makefile src/Makefile tests/Makefile])
