@@ -63,17 +63,34 @@ struct groupdef **list_groups(
 {
 	struct groupdef **grouplist=NULL;
 	struct group *group;
+	struct passwd *user;
+	gid_t  primary;
 	int i;
 
 	DEBUG("Looking for groups, user '%s'\n", username);
 
+	user = getpwnam(username);
+
+	if(user == NULL) {
+		fatal_error("Failed to retrieve user informations from passwd data source.");
+	}
+
+	primary = user->pw_gid;
+	DEBUG("User primary group ID: %d\n", primary);
+
 	setgrent();
 	while( (group=getgrent()) ) {
-		for(i=0; (group->gr_mem)[i] != NULL; i++) {
-			if(strcmp((group->gr_mem)[i], username) == 0 && group->gr_gid != 0) {
-				DEBUG("User is member of group '%d'\n", group->gr_gid);
-				grouplist = add_group_to_grouplist(grouplist, group->gr_gid, group->gr_name);
-				break;
+		if(group->gr_gid == primary) {
+			DEBUG("User primary group '%d'\n", group->gr_gid);
+			grouplist = add_group_to_grouplist(grouplist, group->gr_gid, group->gr_name);
+		}
+		else {
+			for(i=0; (group->gr_mem)[i] != NULL; i++) {
+				if(strcmp((group->gr_mem)[i], username) == 0 && group->gr_gid != 0) {
+					DEBUG("User is member of group '%d'\n", group->gr_gid);
+					grouplist = add_group_to_grouplist(grouplist, group->gr_gid, group->gr_name);
+					break;
+				}
 			}
 		}
 	}
