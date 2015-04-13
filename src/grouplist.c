@@ -89,3 +89,25 @@ struct groupdef **add_group_to_grouplist(
 	return grouplist;
 }
 
+/**
+ * Check if a given group name is in the list and return 0 in this case.
+ * Return 1 is there is no match.
+ *
+ * \param[in]  grouplist   The list of groups to search.
+ * \param[in]  name        The name to look for in the list.
+ * \return                 0 if name is member of grouplist, 1 otherwise.
+ */
+int is_member(
+		struct groupdef **grouplist,
+		const char *name)
+{
+	int i;
+
+	for(i=0; grouplist[i] != NULL; i++) {
+		if(strcmp(grouplist[i]->name, name) == 0) {
+			return 0;
+		}
+	}
+
+	return 1;
+}

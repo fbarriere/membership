@@ -27,8 +27,9 @@ char *choose_name(char *currentname, const char *comparedname);
 
 /* List of group definitions (id, name) management functions */
 
-struct groupdef *groupdef_new(gid_t id);
+struct groupdef  *groupdef_new(gid_t id);
 struct groupdef **add_group_to_grouplist(struct groupdef **grouplist, gid_t id, const char *gname);
+int               is_member(struct groupdef **grouplist, const char *name);
 
 /* System group file interface functions */
 

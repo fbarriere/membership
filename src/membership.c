@@ -52,7 +52,7 @@ char *usage[] = {
 	"",
 	" Usage:",
 	"",
-	"   membership --user <user-name> [--debug]",
+	"   membership --user <user-name> [--check <group-name>] [--debug]",
 	"",
 	NULL
 };
@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 {
 	int i;
 	char *myname=NULL;
+	char *check=NULL;
 	gid_t *membership;
 	struct groupdef *groups;
 	struct groupdef **usergroups;
@@ -92,6 +93,15 @@ int main(int argc, char **argv)
 			}
 			else {
 				fatal_error("--user switch must be followed by a user name.");
+			}
+		}
+		else if(strcmp(argv[i], "--check") == 0) {
+			i++;
+			if(i < argc) {
+				check = argv[i];
+			}
+			else {
+				fatal_error("--check switch must be followed by a group name.");
 			}
 		}
 		else if(strcmp(argv[i], "--debug") == 0) {
@@ -113,7 +123,13 @@ int main(int argc, char **argv)
 	start_sysgroup();
 
 	usergroups = list_groups(myname);
-	report_membership(usergroups, ", ");
+
+	if(check != NULL) {
+		exit(is_member(usergroups, check));
+	}
+	else {
+		report_membership(usergroups, ", ");
+	}
 
 	end_sysgroup();
 
