@@ -1,1 +1,16 @@
-/.project
+Makefile
+Makefile.in
+autom4te.cache
+config.h
+config.h.in
+config.log
+config.status
+configure
+src/.deps
+src/Makefile
+src/Makefile.in
+stamp-h1
+tests/.deps
+tests/Makefile
+tests/Makefile.in
+.project
