@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <pwd.h>
 
 #include "membership.h"
 
@@ -52,7 +53,13 @@ char *usage[] = {
 	"",
 	" Usage:",
 	"",
-	"   membership --user <user-name> [--check <group-name>] [--debug]",
+	"   membership [--user <user-name>] [--check <group-name>] [--debug]",
+	"",
+	" Return the list of groups the given user (through --user) is member of.",
+	" If no user name is provided, the current user is used (the user name",
+	" corresponding to the real UID of the process).",
+	" The --check switch checks the user is member of the named group and",
+	" returns 0 (if the user is member of the group, or 1 if not).",
 	"",
 	NULL
 };
@@ -81,6 +88,7 @@ int main(int argc, char **argv)
 	gid_t *membership;
 	struct groupdef *groups;
 	struct groupdef **usergroups;
+	struct passwd *pwd;
 
 	for(i=1; i < argc; i++) {
 		if(strcmp(argv[i], "--help") == 0) {
@@ -117,7 +125,8 @@ int main(int argc, char **argv)
 	 * For the moment we just fail if no user name is provided...
 	 */
 	if(myname == NULL) {
-		fatal_error("Please provide a user name.");
+		pwd = getpwuid(getuid());
+		myname = pwd->pw_name;
 	}
 
 	start_sysgroup();
